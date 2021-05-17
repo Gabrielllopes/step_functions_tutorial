@@ -1,0 +1,31 @@
+{
+  "Comment": "A simple AWS Step Functions state machine that automates a call center support session. original https://gist.github.com/djg07/7d4b9a7b06459723681b3fef0790ff86",
+  "StartAt": "ProcessTransaction",
+  "States": {
+    "ProcessTransaction": {
+        "Type" : "Choice",
+        "Choices": [ 
+          {
+            "Variable": "$.TransactionType",
+            "StringEquals": "PURCHASE",
+            "Next": "ProcessPurchase"
+          },
+          {
+            "Variable": "$.TransactionType",
+            "StringEquals": "REFUND",
+            "Next": "ProcessRefund"
+          }
+      ]
+    },
+     "ProcessRefund": {
+      "Type": "Task",
+      "Resource": "${RefundArn}",
+      "End": true
+    },
+    "ProcessPurchase": {
+      "Type": "Task",
+      "Resource": "${PurchaseArn}",
+      "End": true
+    }
+  }
+}

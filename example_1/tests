@@ -1,0 +1,9 @@
+# message one test
+
+{
+    "TransactionType" : "REFUND"
+}
+
+{
+    "TransactionType" : "PURCHASE"
+}

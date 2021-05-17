@@ -1,0 +1,68 @@
+Resources:
+  # cria permissão para execussão da função lambda
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+  # cria função lambda de compra
+  MyLambdaPurchase:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: "ProcessPurchase.process_purchase"
+      Role: !GetAtt [ LambdaExecutionRole, Arn ]
+      Code:
+        S3Bucket: "stepfuncktionsdad"
+        S3Key: "ProcessPurchase.zip"
+      Runtime: "python3.6"
+      Timeout: 5
+  # cria função lambda de refund
+  MyLambdaRefund:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: "ProcessRefund.process_refund"
+      Role: !GetAtt [ LambdaExecutionRole, Arn ]
+      Code:
+        S3Bucket: "stepfuncktionsdad"
+        S3Key: "ProcessRefund.zip"
+      Runtime: "python3.6"
+      Timeout: 5
+  # cria permissão para execussaço da lambda pela step function 
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+  # cria step function
+  MyStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: "step-one"
+      DefinitionS3Location: 
+        Bucket: "stepfuncktionsdad"
+        Key: "step_function.json"
+      DefinitionSubstitutions:
+        RefundArn: !GetAtt [ MyLambdaRefund, Arn ]
+        PurchaseArn: !GetAtt [ MyLambdaPurchase, Arn ]
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
