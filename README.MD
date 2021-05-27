@@ -11,6 +11,14 @@ Os códigos desenvilvidos neste repositório serão criados apartir da documenta
 Este exemplo foi baseado no seguinte [tutorial](https://www.youtube.com/watch?v=s0XFX3WHg0w), sendo que neste tutorial ele usa o console da aws para criar recursos, enquanto aqui é utilizado cloud formation.
 
 * cloud-formation - script para criar os recursos
-* Process* - scripts lambda
+* Process* - função lambda
 * step_function.json - máquina de estado (step function)
+* zip_and_cloud - script para zipar as lambdas, colocar no s3, e criar a stack com cloud formation por cli
+
+## 2 - example
+Este exemplo usa os estados choice state, assim como manipulação de erros.
+
+* cloud-formation2 - script para criar os recursos
+* exp2 - função lambda que determina se um número é impar ou par
+* step_function_exp2.json - máquina de estado (step function)
 * zip_and_cloud - script para zipar as lambdas, colocar no s3, e criar a stack com cloud formation por cli
