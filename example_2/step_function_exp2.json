@@ -1,0 +1,44 @@
+{
+  "Comment": "A step function that will call a lambda function some times, forcing error, with the goal of validate multiple steps",
+  "StartAt": "Test2odd",
+  "States": {
+    "Test2odd": {
+      "Type": "Task",
+      "Resource": "${isOddArn}",
+      "ResultPath": "$.message",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "error"
+        }
+      ],
+      "Next": "ChoiceState"
+    },
+    "error": {
+      "Type": "Fail",
+      "Error": "DefaultStateError",
+      "Cause": "Not number!"
+    },
+    "ChoiceState": {
+      "Type": "Choice",
+      "Choices": [
+        { 
+          "Variable": "$.message.is_odd",
+          "BooleanEquals": true,
+          "Next": "Odd"
+        },
+        { 
+          "Variable":"$.message.is_odd",
+          "BooleanEquals": false,
+          "Next": "Even"
+        }
+      ]
+    },
+    "Odd": {
+      "Type": "Succeed"
+    },
+    "Even": {
+      "Type": "Succeed"
+    } 
+  }
+}

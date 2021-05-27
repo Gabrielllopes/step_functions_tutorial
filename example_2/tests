@@ -1,0 +1,14 @@
+# odd
+{
+    "valor" : "4"
+}
+
+# even
+{
+    "valor" : "45"
+}
+
+# erro
+{
+    "valor" : "batata"
+}

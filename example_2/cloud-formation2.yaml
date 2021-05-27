@@ -1,0 +1,56 @@
+Resources:
+  # cria permissão para execussão da função lambda
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+  # cria função lambda que verifica se é impar
+  LambdaIsOdd:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Handler: "exp2.is_odd"
+      Role: !GetAtt [ LambdaExecutionRole, Arn ]
+      Code:
+        S3Bucket: "stepfuncktionsdad"
+        S3Key: "exp2.zip"
+      Runtime: "python3.6"
+      Timeout: 5
+  # cria permissão para execussaço da lambda pela step function 
+  StatesExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+  # cria step function
+  MyStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: "is_odd"
+      DefinitionS3Location: 
+        Bucket: "stepfuncktionsdad"
+        Key: "step_function_exp2.json"
+      DefinitionSubstitutions:
+        isOddArn: !GetAtt [ LambdaIsOdd, Arn ]
+      RoleArn: !GetAtt [ StatesExecutionRole, Arn ]
